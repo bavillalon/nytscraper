@@ -15,7 +15,7 @@ var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
-
+var exphbs = require("express-handlebars");
 // Configure middleware
 
 // Use morgan logger for logging requests
@@ -25,7 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
-
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 // Connect to the Mongo DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
@@ -34,8 +35,15 @@ mongoose.connect(MONGODB_URI);
 // Routes
 
 app.get("/",function(req,res){
-    app.render("index.html");
-})
+  db.Article.find({}, null, {sort: {created: -1}}, function(err, data) {
+		if(data.length === 0) {
+			res.render("default", {message: "Click the Scrape button to begin."});
+		}
+		else{
+			res.render("index", {articles: data});
+		}
+	});
+});
 // A GET route for scraping the echoJS website
 
 app.get("/scrape", function(req, res) {
@@ -51,7 +59,7 @@ app.get("/scrape", function(req, res) {
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this).children().text();
-      result.link = $(this)
+      result.link = "https://www.nytimes.com/"+$(this)
         .attr("href");
         console.log(result)
       // Create a new Article using the `result` object built from scraping

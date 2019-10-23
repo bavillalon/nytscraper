@@ -1,0 +1,11 @@
+<div id="articles">
+    {{#each articles}}
+    <div class="article" >
+        <h2 data-id={{this._id}}>
+            {{this.title}}
+            <a href="{{this.link}}">Link to the Article</a>
+        </h2>
+    </div>
+    {{/each}}
+</div>
+<div id="notes"></div>
