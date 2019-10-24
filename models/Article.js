@@ -8,13 +8,15 @@ var Schema = mongoose.Schema;
 var ArticleSchema = new Schema({
   // `title` is required and of type String
   title: {
-    type: String,
-    required: true
+    type: String
+  },
+  //summary of the article
+  summary: {
+    type: String
   },
   // `link` is required and of type String
   link: {
-    type: String,
-    required: true
+    type: String
   },
   // `note` is an object that stores a Note id
   // The ref property links the ObjectId to the Note model
@@ -23,6 +25,7 @@ var ArticleSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Note"
   },
+  //created field to sort.
   created: {
 		type: Date,
 		default: Date.now

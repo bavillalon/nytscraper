@@ -1,12 +1,12 @@
 // Grab the articles as a json
 
-// Whenever someone clicks a p tag
+// Whenever someone clicks a h2 tag
 $(document).on("click", "h2", function() {
   // Empty the notes from the note section
   $("#notes").empty();
-  // Save the id from the p tag
+  // Save the id from the h2 tag
   var thisId = $(this).attr("data-id");
-
+  let thisArticle=$(this).parent();
   // Now make an ajax call for the Article
   $.ajax({
     method: "GET",
@@ -16,7 +16,7 @@ $(document).on("click", "h2", function() {
     .then(function(data) {
       console.log(data);
       // The title of the article
-      $("#notes").append("<h2>" + data.title + "</h2>");
+      /*$("#notes").append("<h2>" + data.title + "</h2>");*/
       // A textarea to add a new note body
       $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
       // A button to submit a new note, with the id of the article saved to it
@@ -27,6 +27,7 @@ $(document).on("click", "h2", function() {
         // Place the body of the note in the body textarea
         $("#bodyinput").val(data.note.body);
       }
+      $("#notes").detach().appendTo(thisArticle);
     });
 });
 

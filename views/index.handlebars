@@ -1,11 +1,16 @@
-<div id="articles">
+<div class="col" id="articles">
     {{#each articles}}
-    <div class="article" >
+    {{#if this.title}}
+    <div class="article my-3 p-3">
         <h2 data-id={{this._id}}>
             {{this.title}}
-            <a href="{{this.link}}">Link to the Article</a>
         </h2>
+        <p>
+            {{this.summary}}
+            <a href="{{this.link}}">Link to the Article</a>
+        </p>
     </div>
+    {{/if}}
     {{/each}}
 </div>
-<div id="notes"></div>
+<div class="col" id="notes"></div>

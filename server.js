@@ -1,10 +1,6 @@
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
-// Our scraping tools
-// Axios is a promised-based http library, similar to jQuery's Ajax method
-// It works on the client and on the server
 var axios = require("axios");
 var cheerio = require("cheerio");
 
@@ -25,17 +21,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
+//initialize handlebars
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
-// Connect to the Mongo DB
+// Connect to the Mongo DB wiht a switch for the heroku db
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
 mongoose.connect(MONGODB_URI);
 
 // Routes
 
+//route to load the default page. if the db is not populated, the default page is displayed. if not hen the index is displayed.
+// we get teh data from the mongo db an dfilter by created
 app.get("/",function(req,res){
-  db.Article.find({}, null, {sort: {created: -1}}, function(err, data) {
+  db.Article.find({}, null, {sort: {created: +1}}, function(err, data) {
 		if(data.length === 0) {
 			res.render("default", {message: "Click the Scrape button to begin."});
 		}
@@ -44,7 +43,9 @@ app.get("/",function(req,res){
 		}
 	});
 });
-// A GET route for scraping the echoJS website
+
+
+// A GET route for scraping the NYTimes site. 
 
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with axios
@@ -58,7 +59,8 @@ app.get("/scrape", function(req, res) {
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this).children().text();
+      result.title = $(this).find("h2").text();
+      result.summary=$(this).find("p").text()+$(this).find("span").text();
       result.link = "https://www.nytimes.com/"+$(this)
         .attr("href");
         console.log(result)
@@ -79,7 +81,7 @@ app.get("/scrape", function(req, res) {
   });
 });
 
-// Route for getting all Articles from the db
+// Route for getting all Articles from the db. not used
 app.get("/articles", function(req, res) {
   // Grab every document in the Articles collection
   db.Article.find({})
@@ -93,7 +95,7 @@ app.get("/articles", function(req, res) {
     });
 });
 
-// Route for grabbing a specific Article by id, populate it with it's note
+// Route for grabbing a specific Article by id, populate it with it's notes
 app.get("/articles/:id", function(req, res) {
   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
   db.Article.findOne({ _id: req.params.id })
